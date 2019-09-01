@@ -11,7 +11,14 @@ jobs:
     working_directory: /go/src/github.com/wsharp07/fancy-api
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
 
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
       - run: go test -v ./...
+      - run: |
+          TAG=0.1.$CIRCLE_BUILD_NUM
+          docker build -t wsharp007/fancy-api:$TAG .
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker push wsharp007/fancy-api:$TAG
